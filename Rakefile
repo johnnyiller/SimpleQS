@@ -1,21 +1,57 @@
 require 'rubygems'
-require 'spec/rake/spectask'
-
 require 'rake'
-require 'rake/testtask'
-require 'rake/rdoctask'
 
-require 'rake/gempackagetask'
-
-Spec::Rake::SpecTask.new do |t|
-  t.spec_files = FileList['spec/**/*_spec.rb']
-  t.spec_opts = ['--format', 'profile', '--color', '-b']
+begin
+  require 'jeweler'
+  Jeweler::Tasks.new do |gem|
+    gem.name = "em-amazon-sqs"
+    gem.summary = %Q{Asyncronous amazon simple queue service}
+    gem.description = %Q{Async amazon simple queue service }
+    gem.email = "jeff.durand@gmail.com"
+    gem.homepage = "https://github.com/johnnyiller/SimpleQS"
+    gem.authors = ["jeff durand"]
+    gem.add_dependency "xml-simple"
+    gem.add_dependency "em-http-request"
+    gem.add_dependency "addressable"
+    gem.add_dependency "ruby-hmac"
+    #gem.add_development_dependency "thoughtbot-shoulda", ">= 0"
+    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
+  end
+  Jeweler::GemcutterTasks.new
+rescue LoadError
+  puts "Jeweler (or a dependency) not available. Install it with: gem install jeweler"
 end
 
-desc "Default task is to run specs"
-task :default => :spec
+require 'rake/testtask'
+Rake::TestTask.new(:test) do |test|
+  test.libs << 'lib' << 'test'
+  test.pattern = 'test/**/test_*.rb'
+  test.verbose = true
+end
 
-spec = eval(File.read('simple_qs.gemspec'))                                                                                                               
-Rake::GemPackageTask.new(spec) do |pkg|
-  pkg.gem_spec = spec
+begin
+  require 'rcov/rcovtask'
+  Rcov::RcovTask.new do |test|
+    test.libs << 'test'
+    test.pattern = 'test/**/test_*.rb'
+    test.verbose = true
+  end
+rescue LoadError
+  task :rcov do
+    abort "RCov is not available. In order to run rcov, you must: sudo gem install spicycode-rcov"
+  end
+end
+
+task :test => :check_dependencies
+
+task :default => :test
+
+require 'rake/rdoctask'
+Rake::RDocTask.new do |rdoc|
+  version = File.exist?('VERSION') ? File.read('VERSION') : ""
+
+  rdoc.rdoc_dir = 'rdoc'
+  rdoc.title = "em-amazon-sqs #{version}"
+  rdoc.rdoc_files.include('README*')
+  rdoc.rdoc_files.include('lib/**/*.rb')
 end

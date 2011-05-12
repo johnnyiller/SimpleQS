@@ -5,7 +5,9 @@ module SimpleQS
 
       def perform
         sign!
-        SimpleQS::Responce.new Net::HTTP.post_form(URI.parse(uri), query_params).body
+        http = EM::HttpRequest.new(URI.parse(uri)).post :body => query_params
+        #SimpleQS::Responce.new Net::HTTP.post_form(URI.parse(uri), query_params).body
+        SimpleQS::Responce.new http.response
       end
     end
   end
